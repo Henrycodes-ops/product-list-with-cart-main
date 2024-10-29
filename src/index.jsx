@@ -1,214 +1,342 @@
-import React from "react";
+import React, { useState } from "react";
 import dataJson from "../data.json";
-import { useState } from "react";
-import image from "../assets/images/illustration-empty-cart.svg";
 import addToCart from "../assets/images/icon-add-to-cart.svg";
-import closeButton from "../assets/images/icon-remove-item.svg";
-import iconIncrement from "../assets/images/icon-increment-quantity.svg";
-import iconDecrement from "../assets/images/icon-decrement-quantity.svg";
+import image from "../assets/images/illustration-empty-cart.svg";
+import carbonFree from "../assets/images/icon-carbon-neutral.svg";
+import iconConfirmed from "../assets/images/icon-order-confirmed.svg";
 
 const BodyComponent = () => {
-  const [cartItems, setCartItems] = useState([]);
-  // Assuming you have an array of boolean values (one for each item)
-  const [showIconsArray, setShowIconsArray] = useState(
-    dataJson.map(() => false)
+  const [items, setItems] = useState(
+    dataJson.map((item) => ({
+      ...item,
+      showIcon: false,
+      isActive: false,
+      quantity: 0,
+    }))
   );
 
-  const [itemActiveStates, setItemActiveStates] = useState(
-    dataJson.map(() => false)
+  const [cartItems, setCartItems] = useState([]); // State for cart items
+  const [isModalOpen, setIsModalOpen] = useState(false); // Modal visibility state
+
+  // Calculate total price dynamically
+  const total = cartItems.reduce(
+    (acc, item) => acc + item.price * item.quantity,
+    0
   );
 
-  const [itemQuantity, setItemQuantity] = useState(dataJson.map(() => 0));
-
-  const [clickCount, setClickCount] = useState(0);
-
-  // Increment button click handler
-  const handleIncrement = () => {
-    setClickCount(clickCount + 1);
-  };
-
-  const handleAddtoCart = (selectedItem, index, action) => {
-    // Check if the item is already in the cart
-    const itemExists = cartItems.some(
-      (item) => item.name === selectedItem.name
+  // Add or remove items in cart
+  const handleAddToCart = (selectedItem, index, action) => {
+    setItems((prev) =>
+      prev.map((item, idx) =>
+        idx === index
+          ? {
+              ...item,
+              showIcon: true,
+              isActive: action === "increment" || item.quantity > 0,
+              quantity:
+                action === "increment"
+                  ? item.quantity + 1
+                  : Math.max(0, item.quantity - 1),
+            }
+          : item
+      )
     );
-
-    if (!itemExists) {
-      // Create a new cart item object with name and price
-      const newItem = {
-        name: selectedItem.name,
-        price: selectedItem.price,
-      };
-
-      // Add the new item to the cart
-      setCartItems((prevCart) => [...prevCart, newItem]);
-    } else {
-      // Item already exists in the cart; you can show a message or handle it as needed
-      console.log(`"${selectedItem.name}" is already in your cart.`);
-    }
-
-    const updatedShowIconsArray = [...showIconsArray];
-    updatedShowIconsArray[index] = true;
-    setShowIconsArray(updatedShowIconsArray);
-    const updatedItemActiveStates = [...itemActiveStates];
-    updatedItemActiveStates[index] = !updatedItemActiveStates[index];
-    setItemActiveStates(updatedItemActiveStates);
-    const updatedItemQuantity = [...itemQuantity];
-
-    if (action === "increment") {
-      updatedItemQuantity[index]++;
-    } else if (action === "decrement" && updatedItemQuantity[index] > 0) {
-      updatedItemQuantity[index]--;
-    }
-    setItemQuantity(updatedItemQuantity);
+  
+    setCartItems((prev) => {
+      const itemExists = prev.find((item) => item.name === selectedItem.name);
+  
+      if (action === "increment") {
+        if (itemExists) {
+          // Update quantity for an existing item in the cart
+          return prev.map((item) =>
+            item.name === selectedItem.name
+              ? { ...item, quantity: item.quantity + 1 }
+              : item
+          );
+        } else {
+          // Add new item to the cart with quantity 1
+          return [...prev, { ...selectedItem, quantity: 1 }];
+        }
+      } else if (action === "decrement") {
+        // Decrement quantity or remove item if quantity becomes 0
+        return prev
+          .map((item) =>
+            item.name === selectedItem.name
+              ? { ...item, quantity: item.quantity - 1 }
+              : item
+          )
+          .filter((item) => item.quantity > 0);
+      }
+      return prev;
+    });
   };
-  const handleRemoveFromCart = (index) => {
-    // Remove the item at the specified index
-    const updatedCart = cartItems.filter((_, i) => i !== index);
-    setCartItems(updatedCart);
+  
+  // Remove item from cart
+  const handleRemoveFromCart = (name) => {
+    setCartItems((prev) => prev.filter((item) => item.name !== name));
   };
 
-  // Decrement button click handler
-  const handleDecrement = () => {
-    setClickCount(clickCount - 1);
+  // Handle modal visibility
+  const handleConfirmOrder = () => setIsModalOpen(true);
+  const handleNewOrder = () => {
+    setItems(
+      dataJson.map((item) => ({
+        ...item,
+        quantity: 0,
+        showIcon: false,
+        isActive: false,
+      }))
+    );
+    setCartItems([]); // Clear cart
+    setIsModalOpen(false); // Close modal
   };
+
+    // Increment quantity
+
+
+  
+
 
   return (
     <section className="mainContainer">
-      {/* Main container for the entire section */}
       <div className="container">
-        {/* Container for the food items */}
-        <div className="headerContainer">
-          {/* Header for the section */}
-          <h2 className="header">Desserts</h2>
-        </div>
-        <div className="foodItemContainer">
-          {/* Container for individual food items */}
-          {dataJson.map((data, index) => {
-            return (
-              <div key={data.id} className="itemContainer">
-                {/* Individual food item */}
-                <div
-                  className={`imageSection ${
-                    itemActiveStates[index] ? "active" : ""
-                  }`}
-                >
-                  {/* Section containing the food image */}
-                  <div className="img">
-                    <img
-                      src={data.image.desktop}
-                      alt="Food Images"
-                      id="dataImage"
-                    />
-                  </div>
-                  <div className="buttonDiv">
-                    {/* Button to add item to cart */}
-                    <button
-                      className={`addToCartButton ${
-                        showIconsArray[index] ? "active" : ""
-                      }`}
-                      onClick={() => handleAddtoCart(data, index)}
-                    >
-                      {showIconsArray[index] ? (
-                        <div className="icons visibleIcons iconFlex">
-                          <div className="iconDecrement">
-                            <button
-                              onClick={() => {
-                                handleAddtoCart(data, index, "decrement");
-                                handleDecrement(index);
-                              }}
-                              // Disable the decrement icon when quantity is zero
-                              className={
-                                itemQuantity[index] === 0 ? "disabled" : ""
-                              }
-                            >
-                              <img src={iconDecrement} alt="Decrement" />
-                            </button>
-                          </div>
-
-                          <span>{itemQuantity[index]}</span>
-                          <div className="iconIncrement">
-                            <button
-                              className="increment"
-                              onClick={
-                                () => {
-                                  handleAddtoCart(data, index, "increment");
-                                  handleIncrement(index);
-                                }
-                                // handleIncrement
-                              }
-                            >
-                              <img
-                                src={iconIncrement}
-                                alt="Increment"
-                                className="iconIncrement"
-                              />
-                            </button>
-                          </div>
-                        </div>
-                      ) : (
-                        <>
-                          <img src={addToCart} alt="Cart image" />
-                          Add to cart
-                        </>
-                      )}
-                    </button>
-                  </div>
-                </div>
-                <p id="dataCategory">{data.category}</p>
-                <p id="dataName">{data.name}</p>
-                <p id="dataPrice">${data.price.toFixed(2)}</p>
-              </div>
-            );
-          })}
-        </div>
+        <Header />
+        <FoodItemList items={items} handleAddToCart={handleAddToCart} />
       </div>
-      {/* Container for the user's cart */}
-      <div className="yourCartDiv">
-        <h2 id="yourCartHeader">
-          Your Cart (<span>{cartItems.length}</span>)
-        </h2>
-        <div className="centeredContent">
-          {cartItems.map((item, index) => (
-            <div key={index} className="cartItem">
-              <div className="cartItems">
-                <div className="cartSpanItem">
-                  <p id="spanText">
-                    <span className="timesClicked">{clickCount}</span>x
-                  </p>
-                </div>
-                <div className="itemsContainer">
-                <p className="item">{item.name}</p>
-                  <div className="div">
-                <p className="item">${item.price.toFixed(2)}</p>
-
-                  </div>
-                </div>
-              </div>
-
-              <button
-                className="closeButton"
-                onClick={() => handleRemoveFromCart(index)}
-              >
-                <img src={closeButton} alt="" />
-              </button>
-              <div>
-                
-              </div>
-            </div>
-          ))}
-          {cartItems.length === 0 && (
-            <div className="emptyCartMessage">
-              <img src={image} id="yourCartImage" alt="Your Cart" />
-              <p className="yourCartMessage">
-                Your added items will appear here
-              </p>
-            </div>
-          )}
-        </div>
-      </div>
+      <Cart
+        cartItems={cartItems}
+        handleRemoveFromCart={handleRemoveFromCart}
+        total={total}
+        handleConfirmOrder={handleConfirmOrder}
+        isModalOpen={isModalOpen}
+        handleNewOrder={handleNewOrder}
+      />
     </section>
   );
 };
+
+const Header = () => (
+  <div className="headerContainer">
+    <h2 className="header">Desserts</h2>
+  </div>
+);
+
+const FoodItemList = ({ items, handleAddToCart }) => (
+  <div className="foodItemContainer">
+    {items.map((item, index) => (
+      <FoodItem
+        key={item.id}
+        data={item}
+        onAddToCart={(action) => handleAddToCart(item, index, action)}
+      />
+    ))}
+  </div>
+);
+
+const FoodItem = ({ data, onAddToCart }) => (
+  <div className="itemContainer">
+    <div className={`imageSection ${data.isActive ? "active" : ""}`}>
+      <div className="img">
+        <img src={data.image.desktop} alt={data.name} id="dataImage" />
+      </div>
+      <div className="buttonDiv">
+        <button
+          className={`addToCartButton ${data.showIcon ? "active" : ""}`}
+          onClick={() => onAddToCart("increment")}
+        >
+          {data.showIcon ? (
+            <ItemControls
+            quantity={data.quantity}
+            onIncrement={() => onAddToCart(data, index, "increment")}
+            onDecrement={() => onAddToCart(data, index, "decrement")}
+          />
+          
+          ) : (
+            <>
+              <img src={addToCart} alt="Add to cart" />
+              Add to cart
+            </>
+          )}
+        </button>
+      </div>
+    </div>
+    <p id="dataCategory">{data.category}</p>
+    <p id="dataName">{data.name}</p>
+    <p id="dataPrice">${data.price.toFixed(2)}</p>
+  </div>
+);
+
+const ItemControls = ({ quantity, onIncrement, onDecrement }) => (
+  <div className="icons visibleIcons iconFlex">
+    <div className="iconDecrement" onClick={quantity > 0 ? onDecrement : null}>
+      <svg
+        className="decrease"
+        width="24"
+        height="24"
+        viewBox="0 0 24 24"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path d="M5 12h14" stroke="" strokeWidth="2" />
+      </svg>
+    </div>
+    <span>{quantity}</span>
+    <div className="iconIncrement" onClick={onIncrement}>
+      <svg
+        className="iconIncrementImg "
+        width="24"
+        height="24"
+        viewBox="0 0 24 24"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path d="M12 5v14M5 12h14" stroke="" strokeWidth="2" />
+      </svg>
+    </div>
+  </div>
+);
+
+const Cart = ({
+  cartItems,
+  handleRemoveFromCart,
+  total,
+  handleConfirmOrder,
+  isModalOpen,
+  handleNewOrder,
+}) => (
+  <div className="yourCartDiv">
+    <h2 id="yourCartHeader">
+      Your Cart (<span>{cartItems.length}</span>)
+    </h2>
+    <div className="centeredContent">
+      {cartItems.length > 0 ? (
+        <>
+          {cartItems.map((item) => (
+            <CartItem
+              key={item.name}
+              item={item}
+              onRemove={() => handleRemoveFromCart(item.name)}
+            />
+          ))}
+          <OrderSummary
+            total={total}
+            handleConfirmOrder={handleConfirmOrder}
+            isModalOpen={isModalOpen}
+            handleNewOrder={handleNewOrder}
+            cartItems={cartItems}
+          />
+        </>
+      ) : (
+        <EmptyCartMessage />
+      )}
+    </div>
+  </div>
+);
+
+const CartItem = ({ item, onRemove }) => (
+  <div className="cartItem">
+    <div className="itemName">
+      <h3>{item.name}</h3>
+    </div>
+    <div className="cartItems">
+      <div className="cart-price-flex">
+        <p>
+          <span className="timesClicked">{item.quantity}</span>x @$
+          {item.price.toFixed(2)}
+        </p>
+        <div id="totalPrice">
+          <p>${(item.price * item.quantity).toFixed(2)}</p>
+        </div>
+      </div>
+
+      
+      <div className="closeButtonDiv">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 24 24"
+          width="24"
+          height="24"
+          className="closeButton"
+          onClick={onRemove}
+          style={{ cursor: "pointer", stroke: "", strokeWidth: 2 }}
+        >
+          <line x1="18" y1="6" x2="6" y2="18" stroke="" />
+          <line x1="6" y1="6" x2="18" y2="18" stroke="" />
+        </svg>
+      </div>
+    </div>
+  </div>
+);
+
+const OrderSummary = ({
+  total,
+  handleConfirmOrder,
+  isModalOpen,
+  handleNewOrder,
+  cartItems,
+}) => (
+  <>
+    <div className="orderTotalDiv">
+      <p id="order">Order</p>
+      <h4 className="order-total">${total.toFixed(2)}</h4>
+    </div>
+    <div className="carbon-neutral-div">
+      <img src={carbonFree} alt="" />
+      <p>
+        This is a <b className="bold">carbon-neutral</b> delivery
+      </p>
+    </div>
+    <button onClick={handleConfirmOrder}>Confirm Order</button>
+
+    {isModalOpen && (
+      <div className="modal-overlay">
+        <div className="modal">
+          <img src={iconConfirmed} alt="" />
+          <h2>Order Confirmed</h2>
+          <p className="">We hope you enjoy your food!</p>
+          <ul className="order-summary">
+            {cartItems.map((item) => (
+              <li key={item.id}>
+                <img src={item.image.desktop} alt={item.name} />
+                <div className="">
+                  <p id="item-name">
+                    <span>{item.name}</span>
+                  </p>
+                  <span className="span-flex">
+                    <p id="itemQuantity">{item.quantity}x</p>
+                    <div>
+                      <p>@ ${item.price.toFixed(2)}</p>
+                    </div>
+                  </span>
+                </div>
+                <h4 className="orderSummaryTotal">
+                  {" "}
+                  ${(item.price * item.quantity).toFixed(2)}
+                </h4>
+              </li>
+            ))}
+          </ul>
+          <div className="flex">
+            <p id="order">Order Total</p>
+
+            <div>
+              <h4 className="order-total">${total.toFixed(2)}</h4>
+            </div>
+          </div>
+          <button onClick={handleNewOrder} className="new-order-btn">
+            Start New Order
+          </button>
+        </div>
+      </div>
+    )}
+  </>
+);
+
+const EmptyCartMessage = () => (
+  <div className="centeredContent">
+    <img src={image} alt="" id="yourCartImage" />
+    <p className="yourCartMessage">Your added items will appear here</p>
+  </div>
+);
 
 export default BodyComponent;
