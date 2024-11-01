@@ -117,10 +117,6 @@ body {
   color: var(--Rose-900);
   margin-top: 2em;
 }
-.itemName  {
-  
-  
-}
 
 .itemPrice p {
   color: var(--Rose-50);
@@ -263,6 +259,12 @@ body {
   cursor: pointer;
 }
 
+#hide {
+  display: none;
+}
+
+
+
 /* Cart Image in the button */
 .addToCartButton img {
   color: var(--Red);
@@ -344,7 +346,6 @@ body {
   cursor: pointer;
 }
 
-
 .visibleIcons {
   font-size: 1rem;
   color: var(--Rose-50);
@@ -356,15 +357,15 @@ body {
 
 /* Active States */
 .active {
-  border:1px solid var(--Red); /* Show the red border when active */
+  border: 1px solid var(--Red); /* Show the red border when active */
   display: flex;
-  background-color: var(--Red);
 }
 
 .addToCartButton.active {
   padding: 0.5rem 2rem;
   border-radius: 25px;
   text-align: center;
+  background-color: var(--Red);
 }
 
 .imageSection.active {
@@ -494,13 +495,25 @@ svg {
 
 /* Modal Container */
 .modal {
-  background-color: #fff;
+  background-color: var(--Rose-50);
   border-radius: 10px;
   width: 90%;
   max-width: 500px;
+  height: fit-content;
   padding: 2rem;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   animation: fadeIn 0.3s ease-in-out;
+  height: fit-content;
+  max-height: 80%;
+  overflow-y: scroll;
+  scrollbar-width: 1px;
+  
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+  
+  &::-webkit-scrollbar {
+    display: none;  /* Chrome, Safari and Opera */
+  }
 }
 
 /* Modal Header */
@@ -522,12 +535,22 @@ svg {
 
 .order-summary li {
   display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
   gap: 2rem;
 
   align-items: center;
   margin-bottom: 0.8rem;
-  border-bottom: 1px solid var(--Rose-50) ;
+  border-bottom: 1px solid var(--Rose-50);
   padding-bottom: 0.5rem;
+  
+}
+
+.order-flex {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
 }
 
 /* Image inside order summary */
@@ -541,7 +564,6 @@ svg {
 /* Order Total */
 .modal h4 {
   font-size: 1.5rem;
-  margin: 1.5rem 0;
 }
 
 .orderSummaryTotal {
@@ -553,7 +575,7 @@ svg {
 button {
   padding: 0.8rem 1.5rem;
   border: none;
-  border-radius: 5px;
+  border-radius: 25px;
   cursor: pointer;
   font-size: 1rem;
   transition: background-color 0.3s;
@@ -583,33 +605,20 @@ button.new-order-btn:hover {
   }
 }
 
-/* Responsive Design */
-@media (max-width: 768px) {
-  .modal {
-    width: 95%;
-    padding: 1.5rem;
-  }
-
-  .order-summary li {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  .order-summary img {
-    margin-bottom: 0.5rem;
-  }
-}
 
 .flex {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  /* width: 90%; */
-}
+  width: 98%;
+  margin-left: 0.5rem;
+} 
 
 #item-name {
   color: var(--Rose-900);
   font-family: var(--font-family-SemiBold);
+  padding: 0;
+  margin: 0;
 }
 #itemQuantity {
   color: var(--Red);
@@ -618,7 +627,15 @@ button.new-order-btn:hover {
 
 .span-flex {
   display: flex;
-  gap: 1rem;
+  gap: 0.5rem;
+  margin-top: 0.2rem;
+}
+.span-flex p {
+  display: flex;
+  padding: 0;
+  margin: 0;
+  
+  /* gap: 0.5rem; */
 }
 
 .cart-price-flex {
@@ -632,3 +649,195 @@ button.new-order-btn:hover {
   font-family: var(--font-family-SemiBold);
   color: var(--Rose-300);
 }
+
+/* Responsive Design */
+/* Media Queries */
+@media (width <= 1329px) {
+  .yourCartDiv {
+    margin-left: 4rem;
+  }
+  .buttonDiv {
+    position: absolute;
+    left: 19%;
+    bottom: -5%;
+  }
+}
+
+@media (width <= 1229px) {
+  .yourCartDiv {
+    margin-left: 2rem;
+  }
+  .buttonDiv {
+    position: absolute;
+    left: 16%;
+    bottom: -5%;
+  }
+}
+
+@media (width <= 1159px) {
+  .yourCartDiv {
+    margin-left: 2rem;
+  }
+  .buttonDiv {
+    position: absolute;
+    left: 14%;
+    bottom: -5%;
+  }
+}
+
+@media (width <= 1111px) {
+  .mainContainer {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .container {
+    margin-top: 3em;
+    margin-left: 2em;
+    width: 90%;
+    max-width: 100%;
+  }
+
+  .yourCartDiv {
+    margin-left: 2rem;
+    min-width: 50%;
+    margin-top: 5rem;
+    margin-bottom: 2rem;
+  }
+  .buttonDiv {
+    position: absolute;
+    left: 25%;
+    bottom: -5%;
+    margin: auto;
+  }
+}
+
+@media (width <= 962px) {
+  .buttonDiv {
+    position: absolute;
+    left: 22%;
+    bottom: -5%;
+  }
+}
+@media (width <= 894px) {
+  .buttonDiv {
+    position: absolute;
+    left: 18%;
+    bottom: -5%;
+    margin: auto;
+  }
+}
+
+@media (width <= 750px) {
+  .buttonDiv {
+    position: absolute;
+    left: 25%;
+    bottom: -5%;
+    margin: auto;
+  }
+
+  .foodItemContainer {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 2rem;
+    width: 100%;
+  }
+}
+
+@media (width <= 630px) {
+  .buttonDiv {
+    position: absolute;
+    left: 20%;
+    bottom: -5%;
+    margin: auto;
+  }
+
+  .foodItemContainer {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 2rem;
+    width: 100%;
+  }
+}
+
+@media (width <= 460px) {
+  .addToCartButton {
+    display: flex;
+    justify-content: space-evenly;
+    align-items: center;
+    padding: 0.5rem 1rem;
+  }
+
+  .buttonDiv {
+    position: absolute;
+    left: 17%;
+    bottom: -5%;
+    margin: auto;
+  }
+
+  .yourCartDiv {
+    margin-left: 2rem;
+    min-width: 80%;
+    margin-top: 5rem;
+    margin-bottom: 2rem;
+  }
+}
+
+@media (width <= 399px) {
+  .foodItemContainer {
+    display: grid;
+    grid-template-columns: repeat(1, 1fr);
+    gap: 2rem;
+    width: 100%;
+  }
+
+  .yourCartDiv {
+    width: 89%;
+  }
+
+  .addToCartButton {
+    display: flex;
+    justify-content: space-evenly;
+    align-items: center;
+    padding: 0.5rem 2rem;
+    border-radius: 25px;
+    
+
+  }
+  .buttonDiv {
+    position: absolute;
+    left: 30%;
+    bottom: -5%;
+    margin: auto;
+  }
+  .none {
+    display: none;
+  }
+  #hide {
+    display: block;
+    width: 100%;
+    border-radius: 4px;
+  }
+  .modal-overlay {
+    align-items: flex-end; /* Align overlay content to the bottom */
+  }
+
+  .modal {
+    width: 100%;
+    border-radius: 20px 20px 0 0;
+    transform: translateY(100%); /* Start off-screen */
+    animation: slideInUp 0.4s ease forwards; /* Slide up animation */
+  }
+
+  /* Slide up animation keyframes */
+  @keyframes slideInUp {
+    from {
+      transform: translateY(100%);
+    }
+    to {
+      transform: translateY(0);
+    }
+  }
+}
+
+

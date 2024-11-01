@@ -5,6 +5,7 @@ import image from "../assets/images/illustration-empty-cart.svg";
 import carbonFree from "../assets/images/icon-carbon-neutral.svg";
 import iconConfirmed from "../assets/images/icon-order-confirmed.svg";
 
+
 const BodyComponent = () => {
   const [items, setItems] = useState(
     dataJson.map((item) => ({
@@ -33,7 +34,7 @@ const BodyComponent = () => {
               ...item,
               showIcon: true,
               isActive: action === "increment" || item.quantity > 0,
-              quantity:
+              quantity: 
                 action === "increment"
                   ? item.quantity + 1
                   : Math.max(0, item.quantity - 1),
@@ -48,7 +49,8 @@ const BodyComponent = () => {
       if (action === "increment") {
         if (itemExists) {
           // Update quantity for an existing item in the cart
-          return prev.map((item) =>
+          return prev
+          .map((item) =>
             item.name === selectedItem.name
               ? { ...item, quantity: item.quantity + 1 }
               : item
@@ -74,14 +76,30 @@ const BodyComponent = () => {
   // Remove item from cart
   const handleRemoveFromCart = (name) => {
     setCartItems((prev) => prev.filter((item) => item.name !== name));
+  
+    // Reset quantity and states for the removed item
+    setItems((prevItems) =>
+      prevItems.map((item) =>
+        item.name === name
+          ? {
+              ...item,
+              quantity: 0,
+              showIcon: false,
+              isActive: false,
+            }
+          : item
+      )
+    );
   };
+
+  
 
   // Handle modal visibility
   const handleConfirmOrder = () => setIsModalOpen(true);
   const handleNewOrder = () => {
     setItems(
       dataJson.map((item) => ({
-        ...item,
+        ...item, 
         quantity: 0,
         showIcon: false,
         isActive: false,
@@ -137,7 +155,8 @@ const FoodItem = ({ data, onAddToCart }) => (
   <div className="itemContainer">
     <div className={`imageSection ${data.isActive ? "active" : ""}`}>
       <div className="img">
-        <img src={data.image.desktop} alt={data.name} id="dataImage" />
+        <img src={data.image.desktop} alt={data.name} id="dataImage" className="none"/>
+        <img src={data.image.mobile} alt={data.name} id="hide" />
       </div>
       <div className="buttonDiv">
         <button
@@ -297,9 +316,10 @@ const OrderSummary = ({
           <ul className="order-summary">
             {cartItems.map((item) => (
               <li key={item.id}>
+                <div className="order-flex">
                 <img src={item.image.desktop} alt={item.name} />
-                <div className="">
-                  <p id="item-name">
+                <div>
+                   <p id="item-name">
                     <span>{item.name}</span>
                   </p>
                   <span className="span-flex">
@@ -308,6 +328,8 @@ const OrderSummary = ({
                       <p>@ ${item.price.toFixed(2)}</p>
                     </div>
                   </span>
+                </div>
+                 
                 </div>
                 <h4 className="orderSummaryTotal">
                   {" "}
